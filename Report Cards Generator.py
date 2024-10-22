@@ -3,8 +3,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
-from reportlab.graphics.shapes import Drawing
-from reportlab.graphics.charts import spider, lineplots
+from reportlab.graphics.shapes import Drawing, Line
+from reportlab.graphics.charts import spider
 import pandas as pd
 import numpy as np
 
@@ -14,13 +14,27 @@ class ModernReportCardGenerator:
         self.doc = SimpleDocTemplate(
             output_filename,
             pagesize=A4,
-            rightMargin=30,
-            leftMargin=30,
-            topMargin=30,
-            bottomMargin=30
+            rightMargin=1*cm,
+            leftMargin=1*cm,
+            topMargin=1*cm,
+            bottomMargin=1*cm
         )
+        self.width, self.height = A4
         self.styles = getSampleStyleSheet()
+
+        # Modern color palette
+        self.colors = {
+            'primary': colors.HexColor('#1a237e'),    # Deep Blue
+            'secondary': colors.HexColor('#4a148c'),  # Deep Purple
+            'accent': colors.HexColor('#00acc1'),     # Cyan
+            'text': colors.HexColor('#263238'),       # Dark Gray
+            'light': colors.HexColor('#f5f5f5'),      # Light Gray
+            'warning': colors.HexColor('#ff6d00'),    # Orange
+            'success': colors.HexColor('#00c853'),    # Green
+        }
+
         self.init_styles()
+
         self.teachers = {
             'SCI': 'Mr. Oloo',
             'KISW': 'Mr. Oloo',
@@ -32,170 +46,216 @@ class ModernReportCardGenerator:
             'ENG': 'Mr. Adongo',
             'SST': 'Madam Janet'
         }
+
         self.performance_levels = {
-            (0, 30): ('Below Expectation', 1, colors.HexColor('#FF6B6B')),
-            (31, 49): ('Approaching Expectation', 2, colors.HexColor('#FFD93D')),
-            (50, 79): ('Meeting Expectation', 3, colors.HexColor('#6BCB77')),
-            (80, 100): ('Exceeding Expectation', 4, colors.HexColor('#4D96FF'))
+            (0, 30): ('Below Expectation', 1, colors.HexColor('#ff1744')),
+            (31, 49): ('Approaching Expectation', 2, colors.HexColor('#ffd600')),
+            (50, 79): ('Meeting Expectation', 3, colors.HexColor('#00e676')),
+            (80, 100): ('Exceeding Expectation', 4, colors.HexColor('#2979ff'))
         }
 
     def init_styles(self):
-        """Initialize modern custom styles"""
-        self.title_style = ParagraphStyle(
+        """Initialize modern typography styles"""
+        self.styles.add(ParagraphStyle(
             'CustomTitle',
             parent=self.styles['Heading1'],
-            fontSize=24,
-            spaceAfter=30,
-            alignment=1,
-            textColor=colors.HexColor('#2C3E50'),
-            fontName='Helvetica-Bold'
-        )
-
-        self.subtitle_style = ParagraphStyle(
-            'CustomSubTitle',
-            parent=self.styles['Heading2'],
             fontSize=16,
-            spaceAfter=20,
+            textColor=self.colors['primary'],
+            spaceAfter=10,
             alignment=1,
-            textColor=colors.HexColor('#34495E'),
-            fontName='Helvetica'
-        )
+            fontName='Helvetica-Bold'
+        ))
 
-        self.header_style = ParagraphStyle(
-            'CustomHeader',
+        self.styles.add(ParagraphStyle(
+            'CustomSubTitle',
             parent=self.styles['Normal'],
             fontSize=12,
-            textColor=colors.HexColor('#2C3E50'),
-            spaceAfter=12,
+            textColor=self.colors['secondary'],
+            spaceAfter=5,
+            alignment=1,
+            fontName='Helvetica'
+        ))
+
+        self.styles.add(ParagraphStyle(
+            'CustomHeader',
+            parent=self.styles['Normal'],
+            fontSize=10,
+            textColor=self.colors['text'],
             fontName='Helvetica-Bold'
-        )
+        ))
+
+        self.styles.add(ParagraphStyle(
+            'CustomNormal',
+            parent=self.styles['Normal'],
+            fontSize=8,
+            textColor=self.colors['text'],
+            fontName='Helvetica'
+        ))
 
     def get_performance_level(self, score):
-        """Get performance level, rub score, and color based on marks"""
+        """Get performance level info"""
         for (min_score, max_score), (level, rub, color) in self.performance_levels.items():
             if min_score <= score <= max_score:
                 return level, rub, color
         return 'Not Evaluated', 0, colors.white
 
-    def create_header(self, school_info):
-        """Create modern header section with logo"""
-        elements = []
-
+    def create_header_table(self, student_data, school_info):
+        """Create modern header with logo and school info"""
         try:
-            logo = Image('jina lgo.png', width=1.5*inch, height=1.5*inch)
+            logo = Image('Jina lgo.png', width=1*inch, height=1*inch)
         except:
-            # Fallback to placeholder if logo file is not found
             logo = Image('/api/placeholder/100/100',
-                         width=1.5*inch, height=1.5*inch)
+                         width=1*inch, height=1*inch)
 
-        elements.append(logo)
-        elements.append(Spacer(1, 0.2*inch))
+        school_data = [
+            [logo, school_info['name'], f"Assessment No: {
+                student_data['Assessment Number']}"],
+            ['', school_info['address'], f"Name: {student_data['Name']}"]
+        ]
 
-        elements.append(Paragraph(school_info['name'], self.title_style))
-        elements.append(Paragraph(school_info['address'], self.subtitle_style))
+        table = Table(school_data, colWidths=[2.5*cm, 10*cm, 6*cm])
+        table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('SPAN', (0, 0), (0, 1)),
+            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (1, 0), (1, 0), 14),
+            ('FONTNAME', (1, 1), (1, 1), 'Helvetica'),
+            ('FONTSIZE', (1, 1), (1, 1), 10),
+            ('FONTNAME', (2, 0), (2, 1), 'Helvetica'),
+            ('FONTSIZE', (2, 0), (2, 1), 9),
+            ('TEXTCOLOR', (1, 0), (1, 0), self.colors['primary']),
+        ]))
+        return table
 
-        return elements
-
-    def create_spider_chart(self, student_data):
-        """Create a spider chart for subject performance"""
-        drawing = Drawing(400, 200)
-
+    def create_performance_table(self, student_data):
+        """Create modern performance table with color coding"""
+        headers = ['Subject', 'Score', 'Performance Level', 'Teacher', 'Rub']
         subjects = ['ENG', 'MAT', 'AGR', 'KISW',
                     'SCI', 'CRA', 'SST', 'P0TECH', 'CRE']
-        data = [[student_data[subject] for subject in subjects]]
 
-        spider_chart = spider.SpiderChart()
-        spider_chart.x = 50
-        spider_chart.y = 50
-        spider_chart.width = 300
-        spider_chart.height = 150
-        spider_chart.data = data
-        spider_chart.labels = subjects
-        spider_chart.strands[0].strokeColor = colors.HexColor('#2C3E50')
-        spider_chart.strands[0].fillColor = colors.HexColor('#3498DB')
-        spider_chart.strokeColor = colors.grey
-
-        drawing.add(spider_chart)
-        return drawing
-
-    def create_performance_analysis(self, student_data):
-        """Create detailed performance analysis with teacher comments"""
-        elements = []
-
-        subjects = ['ENG', 'MAT', 'AGR', 'KISW',
-                    'SCI', 'CRA', 'SST', 'P0TECH', 'CRE']
-        data = [['Subject', 'Score', 'Performance Level', 'Teacher']]
-
+        data = [headers]
         for subject in subjects:
             score = student_data[subject]
-            level, _, color = self.get_performance_level(score)
+            level, rub, color = self.get_performance_level(score)
             teacher = self.teachers.get(subject, '')
 
             data.append([
                 subject,
                 f"{score}%",
                 level,
-                teacher
+                teacher,
+                str(rub)
             ])
 
-        table = Table(data, colWidths=[2*cm, 2*cm, 8*cm, 4*cm])
-        table.setStyle(TableStyle([
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#ECF0F1')),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2C3E50')),
+        table = Table(data, colWidths=[2*cm, 2*cm, 6*cm, 4*cm, 2*cm])
+        style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, self.colors['light']),
+            ('BACKGROUND', (0, 0), (-1, 0), self.colors['primary']),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('PADDING', (0, 0), (-1, -1), 8),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ]))
-
-        elements.append(Paragraph("Performance Analysis", self.header_style))
-        elements.append(table)
-
-        return elements
-
-    def create_summary_statistics(self, student_data):
-        """Create summary statistics section"""
-        elements = []
-
-        data = [
-            ['Overall Statistics', ''],
-            ['Total Score:', f"{student_data['TTL']}/900"],
-            ['Average Score:', f"{student_data['AVG']:.1f}%"],
-            ['Class Position:', f"{student_data['RANK']
-                                   }/{student_data['total_students']}"],
-            ['Performance Trend:', 'Above class average' if student_data['AVG']
-                > student_data['class_avg'] else 'Below class average']
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]
 
-        table = Table(data, colWidths=[4*cm, 12*cm])
+        # Add color coding for performance levels
+        for i, row in enumerate(data[1:], 1):
+            score = float(row[1].replace('%', ''))
+            _, _, color = self.get_performance_level(score)
+            style.append(('BACKGROUND', (2, i), (2, i), color))
+            style.append(('TEXTCOLOR', (2, i), (2, i), colors.white))
+
+        table.setStyle(TableStyle(style))
+        return table
+
+    def create_summary_section(self, student_data):
+        """Create modern summary section"""
+        data = [
+            ['Overall Performance Summary'],
+            [f"Total Score: {student_data['TTL']}/900"],
+            [f"Average Score: {student_data['AVG']:.1f}%"],
+            [f"Class Position: {student_data['RANK']} out of {
+                student_data['total_students']}"],
+            [f"Class Average: {student_data['class_avg']:.1f}%"]
+        ]
+
+        table = Table(data, colWidths=[16*cm])
         table.setStyle(TableStyle([
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#ECF0F1')),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2C3E50')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('PADDING', (0, 0), (-1, -1), 8),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0, 0), (0, 0), self.colors['primary']),
+            ('TEXTCOLOR', (0, 0), (0, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
         ]))
+        return table
 
-        elements.append(Paragraph("Summary Statistics", self.header_style))
-        elements.append(table)
+    def create_remarks_section(self):
+        """Create modern remarks section"""
+        data = [
+            ['Comments and Signatures'],
+            ["Class Teacher's Comments: _____________________________________________"],
+            ["Principal's Comments: _______________________________________________"],
+            ["Parent's/Guardian's Comments: ________________________________________"],
+            ['Date: ________________  Signatures:  Teacher: ________  Parent: ________']
+        ]
 
-        return elements
+        table = Table(data, colWidths=[16*cm])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, 0), self.colors['primary']),
+            ('TEXTCOLOR', (0, 0), (0, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        return table
+
+    def create_legend(self):
+        """Create performance level legend"""
+        data = [['Performance Levels:']]
+        for (min_score, max_score), (level, _, color) in self.performance_levels.items():
+            data.append([f"{level} ({min_score}-{max_score})"])
+
+        table = Table(data, colWidths=[8*cm])
+        style = [
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ]
+
+        # Color code the legend
+        for i, ((_, _), (_, _, color)) in enumerate(self.performance_levels.items(), 1):
+            style.append(('BACKGROUND', (0, i), (0, i), color))
+            style.append(('TEXTCOLOR', (0, i), (0, i), colors.white))
+
+        table.setStyle(TableStyle(style))
+        return table
 
     def process_data(self, csv_data):
-        """Process the CSV data and calculate statistics"""
+        """Process CSV data with additional statistics"""
         df = pd.read_csv(csv_data)
-        # Convert to numeric, coerce errors to NaN
+
+        # Convert AVG column to numeric, coercing errors to NaN
         df['AVG'] = pd.to_numeric(df['AVG'], errors='coerce')
+
+        subjects = ['ENG', 'MAT', 'AGR', 'KISW',
+                    'SCI', 'CRA', 'SST', 'P0TECH', 'CRE']
+        for subject in subjects:
+            df[f'{subject}_avg'] = df[subject].mean()
+
+        # Now this should work without errors
         df['class_avg'] = df['AVG'].mean()
         df['total_students'] = len(df)
 
         return df
 
     def generate_report_cards(self, csv_data):
-        """Generate modern report cards for all students"""
+        """Generate modern single-page report cards"""
         df = self.process_data(csv_data)
         elements = []
 
@@ -208,40 +268,28 @@ class ModernReportCardGenerator:
             if pd.isna(student_data['Name']):
                 continue
 
-            # Create report card elements
-            elements.extend(self.create_header(school_info))
-            elements.append(Spacer(1, 0.3*inch))
+            # Header
+            elements.append(self.create_header_table(
+                student_data, school_info))
+            elements.append(Spacer(1, 0.2*inch))
 
-            # Add student info
-            elements.append(
-                Paragraph(f"Student: {student_data['Name']}", self.header_style))
-            elements.append(Paragraph(f"Assessment Number: {
-                            student_data['Assessment Number']}", self.subtitle_style))
-            elements.append(Spacer(1, 0.3*inch))
+            # Performance Table
+            elements.append(self.create_performance_table(student_data))
+            elements.append(Spacer(1, 0.2*inch))
 
-            # Add spider chart
-            elements.append(self.create_spider_chart(student_data))
-            elements.append(Spacer(1, 0.3*inch))
+            # Two-column layout for summary and legend
+            summary_and_legend = Table([
+                [self.create_summary_section(
+                    student_data), self.create_legend()]
+            ], colWidths=[10*cm, 8*cm])
+            elements.append(summary_and_legend)
+            elements.append(Spacer(1, 0.2*inch))
 
-            # Add performance analysis
-            elements.extend(self.create_performance_analysis(student_data))
-            elements.append(Spacer(1, 0.3*inch))
-
-            # Add summary statistics
-            elements.extend(self.create_summary_statistics(student_data))
-            elements.append(Spacer(1, 0.3*inch))
-
-            # Add remarks section
-            elements.append(Paragraph("Remarks", self.header_style))
-            elements.append(Spacer(1, 1*inch))  # Space for handwritten remarks
-
-            # Add signatures
-            elements.append(Paragraph("Signatures", self.header_style))
-            elements.append(Spacer(1, 1*inch))  # Space for signatures
-
+            # Remarks
+            elements.append(self.create_remarks_section())
             elements.append(PageBreak())
 
-        self.doc.build(elements[:-1])  # Remove last page break
+        self.doc.build(elements[:-1])
 
 
 # Example usage
