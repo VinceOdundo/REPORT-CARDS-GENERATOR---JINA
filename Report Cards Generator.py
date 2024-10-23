@@ -132,7 +132,7 @@ class ModernReportCardGenerator:
         """Create modern performance table with color coding"""
         headers = ['Subject', 'Score', 'Performance Level', 'Teacher', 'Rub']
         subjects = ['ENG', 'MAT', 'AGR', 'KISW',
-                    'SCI', 'CRA', 'SST', 'P0TECH', 'CRE']
+                    'SCI', 'CRA', 'SST', 'P-TECH', 'CRE']
 
         data = [headers]
         for subject in subjects:
