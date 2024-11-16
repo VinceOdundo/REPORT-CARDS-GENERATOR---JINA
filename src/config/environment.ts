@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 export interface Environment {
   FIREBASE_API_KEY: string;
   FIREBASE_AUTH_DOMAIN: string;

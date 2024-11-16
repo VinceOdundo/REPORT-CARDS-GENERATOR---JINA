@@ -8,6 +8,11 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  signup: (
+    email: string,
+    password: string,
+    data: { schoolName: string }
+  ) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -25,8 +30,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        const userData = await authService.getUserData(firebaseUser.uid);
-        setUser(userData);
+        try {
+          const userData = await authService.getUserData(firebaseUser.uid);
+          setUser(userData);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
@@ -40,9 +50,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     user,
     loading,
     isAuthenticated: !!user,
-    login: async (email: string, password: string) =>
-      await authService.login(email, password),
-    logout: async () => await authService.logout(),
+    login: async (email: string, password: string) => {
+      const userData = await authService.login(email, password);
+      setUser(userData);
+    },
+    signup: async (
+      email: string,
+      password: string,
+      data: { schoolName: string }
+    ) => {
+      const userData = await authService.signup(email, password, data);
+      setUser(userData);
+    },
+    logout: async () => {
+      await authService.logout();
+      setUser(null);
+    },
     resetPassword: async (email: string) =>
       await authService.resetPassword(email),
   };

@@ -9,21 +9,28 @@ import {
   Text,
   useToast,
   Image,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
-import { useNavigate } from "react-router-dom";
 
-const Login: React.FC = () => {
+const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const { login } = useAuth();
+  const [schoolName, setSchoolName] = React.useState("");
+  const { signup } = useAuth();
   const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await signup(email, password, { schoolName });
+      toast({
+        title: "Account created successfully",
+        status: "success",
+        duration: 3000,
+      });
       navigate("/dashboard");
     } catch (error) {
       const errorMessage =
@@ -53,19 +60,24 @@ const Login: React.FC = () => {
         borderRadius="lg"
         boxShadow="lg"
       >
-        <Image
-          src="../../public/assets/images/favicon.png"
-          alt="Logo"
-          w="150px"
-        />
+        <Image src="/assets/images/favicon.png" alt="Logo" w="150px" />
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <VStack spacing={4}>
+            <FormControl>
+              <FormLabel>School Name</FormLabel>
+              <Input
+                value={schoolName}
+                onChange={(e) => setSchoolName(e.target.value)}
+                required
+              />
+            </FormControl>
             <FormControl>
               <FormLabel>Email</FormLabel>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </FormControl>
             <FormControl>
@@ -74,19 +86,23 @@ const Login: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </FormControl>
             <Button type="submit" colorScheme="blue" w="100%">
-              Login
+              Sign Up
             </Button>
           </VStack>
         </form>
         <Text fontSize="sm">
-          Don't have an account? <Button variant="link">Sign up</Button>
+          Already have an account?{" "}
+          <ChakraLink as={RouterLink} to="/login" color="blue.500">
+            Sign in
+          </ChakraLink>
         </Text>
       </VStack>
     </Box>
   );
 };
 
-export default Login;
+export default SignUp;

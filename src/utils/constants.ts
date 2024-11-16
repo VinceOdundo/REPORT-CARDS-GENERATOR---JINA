@@ -1,24 +1,33 @@
 export const APP_CONSTANTS = {
-  MAX_FREE_REPORTS: 40,
+  MAX_FREE_REPORTS: 10,
   SUBSCRIPTION_TIERS: {
-    FREE: 'free',
-    BASIC: 'basic',
-    PREMIUM: 'premium'
+    FREE: "free",
+    BASIC: "basic",
+    PREMIUM: "premium"
   },
-  PAYMENT_CURRENCIES: {
-    KES: 'KES',
-    USD: 'USD',
-    NGN: 'NGN',
-    GHS: 'GHS'
+  FEATURES: {
+    FREE: [
+      "Generate up to 10 reports",
+      "Basic templates",
+      "Email support"
+    ],
+    BASIC: [
+      "Generate up to 100 reports",
+      "Custom templates",
+      "Priority support",
+      "Export to PDF"
+    ],
+    PREMIUM: [
+      "Unlimited reports",
+      "All features",
+      "24/7 support",
+      "API access"
+    ]
   },
-  REPORT_CARD_TEMPLATES: {
-    BASIC: 'basic',
-    MODERN: 'modern',
-    PREMIUM: 'premium'
-  },
-  FILE_TYPES: {
-    PDF: 'application/pdf',
-    CSV: 'text/csv'
+  PRICING: {
+    FREE: 0,
+    BASIC: 999,
+    PREMIUM: 2499
   }
 };
 

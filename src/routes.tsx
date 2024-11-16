@@ -8,6 +8,8 @@ const Login = React.lazy(() => import("./pages/Login"));
 const Reports = React.lazy(() => import("./pages/Reports"));
 const Settings = React.lazy(() => import("./pages/Settings"));
 const Billing = React.lazy(() => import("./pages/Billing"));
+const Landing = React.lazy(() => import("./pages/Landing"));
+const SignUp = React.lazy(() => import("./pages/SignUp"));
 
 export const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -19,8 +21,13 @@ export const AppRoutes: React.FC = () => {
           path="/login"
           element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
         />
+        <Route path="/" element={<Landing />} />
         <Route
-          path="/"
+          path="/signup"
+          element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" />}
+        />
+        <Route
+          path="/dashboard"
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
         />
         <Route

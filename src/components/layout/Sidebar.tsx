@@ -1,16 +1,17 @@
 import React from "react";
-import { Box, VStack, Link, Icon, Text, Flex } from "@chakra-ui/react";
+import { Box, VStack, Link, Text, Flex } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-
-const menuItems = [
-  { label: "Dashboard", path: "/", icon: "📊" },
-  { label: "Reports", path: "/reports", icon: "📄" },
-  { label: "Settings", path: "/settings", icon: "⚙️" },
-  { label: "Billing", path: "/billing", icon: "💳" },
-];
+import { useAuth } from "../../features/auth/useAuth";
+import {
+  authenticatedMenuItems,
+  publicMenuItems,
+} from "../../config/navigation";
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  const menuItems = isAuthenticated ? authenticatedMenuItems : publicMenuItems;
 
   return (
     <Box
@@ -40,6 +41,42 @@ export const Sidebar: React.FC = () => {
             </Flex>
           </Link>
         ))}
+        {!isAuthenticated && (
+          <VStack
+            spacing={2}
+            mt={4}
+            pt={4}
+            borderTop="1px"
+            borderColor="gray.200"
+          >
+            <Link
+              as={RouterLink}
+              to="/login"
+              w="full"
+              p={3}
+              borderRadius="md"
+              bg="blue.500"
+              color="white"
+              textAlign="center"
+              _hover={{ bg: "blue.600" }}
+            >
+              Login
+            </Link>
+            <Link
+              as={RouterLink}
+              to="/signup"
+              w="full"
+              p={3}
+              borderRadius="md"
+              bg="gray.100"
+              color="gray.800"
+              textAlign="center"
+              _hover={{ bg: "gray.200" }}
+            >
+              Sign Up
+            </Link>
+          </VStack>
+        )}
       </VStack>
     </Box>
   );
