@@ -1,0 +1,42 @@
+{
+    "name": "report-cards-saas",
+    "private": true,
+    "version": "0.1.0",
+    "type": "module",
+    "scripts": {
+        "predev": "npm install",
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "clean": "rimraf node_modules dist",
+        "reinstall": "npm run clean && npm install"
+    },
+    "dependencies": {
+        "@chakra-ui/react": "^2.8.0",
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
+        "@react-pdf/renderer": "^3.1.12",
+        "axios": "^1.4.0",
+        "firebase": "10.7.1",
+        "framer-motion": "^10.15.1",
+        "react": "18.3.1",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "6.28.0",
+        "zustand": "^4.4.1"
+    },
+    "devDependencies": {
+        "@types/react": "18.3.12",
+        "@types/react-dom": "18.3.1",
+        "@typescript-eslint/eslint-plugin": "^6.3.0",
+        "@typescript-eslint/parser": "^6.3.0",
+        "@vitejs/plugin-react-swc": "^3.3.2",
+        "cross-env": "^7.0.3",
+        "eslint": "^8.47.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.3",
+        "rimraf": "^5.0.1",
+        "typescript": "^5.1.6",
+        "vite": "4.5.5"
+    }
+}
