@@ -1,21 +1,52 @@
 import { db, storage } from '../../config/firebase';
-import { collection, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Student, SchoolInfo } from '../../types';
 
 export const reportService = {
   async generate(students: Student[], schoolInfo: SchoolInfo, userId: string) {
-    // Generate PDF buffer
-    // Store in Firebase Storage
-    // Update report count in subscription
-    // Return download URL
+    const reportsCollection = collection(db, 'reports');
+    const results = [];
+
+    for (const student of students) {
+      // Generate report data
+      const reportData = {
+        studentId: student.id,
+        schoolId: schoolInfo.id,
+        generatedBy: userId,
+        createdAt: new Date(),
+        status: 'completed',
+        // Add other report fields
+      };
+
+      // Save to Firestore
+      const docRef = await addDoc(reportsCollection, reportData);
+      results.push({ id: docRef.id, ...reportData });
+    }
+
+    return results;
   },
 
   async getReportHistory(userId: string) {
-    // Fetch report generation history
+    const reportsCollection = collection(db, 'reports');
+    const q = query(
+      reportsCollection,
+      where('generatedBy', '==', userId),
+      where('status', '==', 'completed')
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
   },
 
   async deleteReport(reportId: string) {
-    // Delete report and update counts
+    const reportRef = doc(db, 'reports', reportId);
+    await updateDoc(reportRef, {
+      status: 'deleted',
+      deletedAt: new Date()
+    });
   }
 };

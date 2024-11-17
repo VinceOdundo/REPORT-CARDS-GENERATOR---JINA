@@ -26,5 +26,21 @@ export const BatchOperations = {
     });
 
     await batch.commit();
+  },
+
+  async executeBatch(operations: Array<{
+    type: 'set';
+    path: string;
+    data: any;
+  }>) {
+    const batch = writeBatch(db);
+    
+    operations.forEach(op => {
+      const [collection, id] = op.path.split('/');
+      const ref = doc(db, collection, id);
+      batch.set(ref, op.data);
+    });
+
+    await batch.commit();
   }
 };

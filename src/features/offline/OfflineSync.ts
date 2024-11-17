@@ -1,6 +1,6 @@
-import { db } from '../../config/firebase';
 import { doc, setDoc, collection } from 'firebase/firestore';
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { BatchOperations } from '../../utils/batchOperations';
 
 interface OfflineDB extends DBSchema {
   pendingReports: {
@@ -15,7 +15,7 @@ interface OfflineDB extends DBSchema {
 }
 
 export class OfflineSync {
-  private db: IDBPDatabase<OfflineDB>;
+  private db!: IDBPDatabase<OfflineDB>;
 
   async initialize() {
     this.db = await openDB<OfflineDB>('schoolreports-offline', 1, {
@@ -36,21 +36,27 @@ export class OfflineSync {
 
   async syncPendingReports() {
     const pendingReports = await this.db.getAll('pendingReports');
+    const batchSize = 500;
     
-    for (const report of pendingReports) {
-      try {
-        await this.db.put('pendingReports', { ...report, syncStatus: 'syncing' });
-        
-        await setDoc(doc(collection(db, 'reports')), {
-          ...report.data,
-          syncedAt: new Date(),
-          originalCreatedAt: new Date(report.createdAt)
-        });
+    for (let i = 0; i < pendingReports.length; i += batchSize) {
+      const batch = pendingReports.slice(i, i + batchSize);
+      await BatchOperations.executeBatch(
+        batch.map(report => ({
+          type: 'set',
+          path: `reports/${report.id}`,
+          data: {
+            ...report.data,
+            syncedAt: new Date(),
+            originalCreatedAt: new Date(report.createdAt)
+          }
+        }))
+      );
 
-        await this.db.delete('pendingReports', report.id);
-      } catch (error) {
-        await this.db.put('pendingReports', { ...report, syncStatus: 'error' });
-      }
+      await Promise.all(
+        batch.map(report => 
+          this.db.delete('pendingReports', report.id)
+        )
+      );
     }
   }
 

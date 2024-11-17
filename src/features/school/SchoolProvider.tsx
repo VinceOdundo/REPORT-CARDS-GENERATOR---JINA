@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { schoolService } from "./schoolService";
 import { useAuth } from "../auth/useAuth";
-import { School } from "../../types";
+import { School } from "../../types/school";
 
 const SchoolContext = createContext<{
   school: School | null;
@@ -15,7 +15,9 @@ const SchoolContext = createContext<{
   updateSchool: async () => {},
 });
 
-export const SchoolProvider: React.FC = ({ children }) => {
+export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [school, setSchool] = useState<School | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -28,7 +30,7 @@ export const SchoolProvider: React.FC = ({ children }) => {
 
     const loadSchool = async () => {
       try {
-        const schoolData = await schoolService.getSchool(user.uid);
+        const schoolData = await schoolService.getSchool(user.id);
         if (mounted) {
           setSchool(schoolData);
         }
@@ -65,4 +67,12 @@ export const SchoolProvider: React.FC = ({ children }) => {
       {children}
     </SchoolContext.Provider>
   );
+};
+
+export const useSchool = () => {
+  const context = useContext(SchoolContext);
+  if (context === undefined) {
+    throw new Error("useSchool must be used within a SchoolProvider");
+  }
+  return context;
 };

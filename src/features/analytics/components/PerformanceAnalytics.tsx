@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { PerformanceAnalytics } from "../PerformanceAnalytics";
 import { useSchool } from "../../school/SchoolProvider";
-import { RetryableError } from "../../utils/errors";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
@@ -37,7 +36,7 @@ export const PerformanceAnalyticsPanel: React.FC = () => {
       );
       setMetrics(data);
     } catch (err) {
-      if (err instanceof RetryableError && retries < MAX_RETRIES) {
+      if (err instanceof AppError && retries < MAX_RETRIES) {
         setTimeout(() => fetchAnalytics(retries + 1), RETRY_DELAY);
         return;
       }
@@ -80,6 +79,7 @@ export const PerformanceAnalyticsPanel: React.FC = () => {
           value={timeframe}
           onChange={(e) => setTimeframe(e.target.value as "term" | "year")}
           w="200px"
+          aria-label="Select time period"
         >
           <option value="term">This Term</option>
           <option value="year">This Year</option>

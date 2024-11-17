@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   displayName: string;
+  photoURL: string;
   role: 'admin' | 'teacher' | 'principal';
   schoolId: string;
   createdAt: Date;
