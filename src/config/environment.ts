@@ -10,6 +10,11 @@ export interface Environment {
   FIREBASE_MEASUREMENT_ID: string;
   API_URL: string;
   STRIPE_PUBLIC_KEY: string;
+  LEMON_SQUEEZY_WEBHOOK_SECRET: string;
+  MPESA_CONSUMER_KEY: string;
+  MPESA_CONSUMER_SECRET: string;
+  MPESA_BUSINESS_SHORT_CODE: string;
+  MPESA_PASSKEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
 }
 
@@ -24,6 +29,11 @@ export const getEnvironmentVariables = (): Environment => {
     FIREBASE_MEASUREMENT_ID: import.meta.env.VITE_MEASUREMENT_ID,
     API_URL: import.meta.env.VITE_API_URL,
     STRIPE_PUBLIC_KEY: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
+    LEMON_SQUEEZY_WEBHOOK_SECRET: import.meta.env.VITE_LEMON_SQUEEZY_WEBHOOK_SECRET,
+    MPESA_CONSUMER_KEY: import.meta.env.VITE_MPESA_CONSUMER_KEY,
+    MPESA_CONSUMER_SECRET: import.meta.env.VITE_MPESA_CONSUMER_SECRET,
+    MPESA_BUSINESS_SHORT_CODE: import.meta.env.VITE_MPESA_BUSINESS_SHORT_CODE,
+    MPESA_PASSKEY: import.meta.env.VITE_MPESA_PASSKEY,
     NODE_ENV: import.meta.env.MODE as 'development' | 'production' | 'test'
   };
 };

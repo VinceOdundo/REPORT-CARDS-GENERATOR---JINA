@@ -60,11 +60,7 @@ const Login: React.FC = () => {
       bg="gray.50"
     >
       <VStack __css={theme.components.Form.baseStyle.container}>
-        <Image
-          src="../../public/assets/images/favicon.png"
-          alt="Logo"
-          w="150px"
-        />
+        <Image src="/assets/images/favicon.png" alt="Logo" w="150px" />
         <Box
           as="form"
           onSubmit={handleSubmit}
@@ -78,7 +74,10 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setErrors((prev) => ({ ...prev, email: undefined }));
+                  setErrors((prev) => {
+                    const { email, ...rest } = prev;
+                    return rest;
+                  });
                 }}
               />
               {errors.email && (
@@ -92,7 +91,10 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  setErrors((prev) => ({ ...prev, password: undefined }));
+                  setErrors((prev) => {
+                    const { password, ...rest } = prev;
+                    return rest;
+                  });
                 }}
               />
               {errors.password && (
