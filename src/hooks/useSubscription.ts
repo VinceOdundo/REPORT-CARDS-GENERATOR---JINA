@@ -19,14 +19,14 @@ export const useSubscription = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!user?.uid) {
+    if (!user?.id) {
       setSubscription(null);
       setLoading(false);
       return;
     }
 
     const unsubscribe = onSnapshot(
-      doc(db, 'subscriptions', user.uid),
+      doc(db, 'subscriptions', user.id),
       (doc) => {
         if (doc.exists()) {
           setSubscription({
@@ -46,7 +46,7 @@ export const useSubscription = () => {
     );
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user?.id]);
 
   return { subscription, loading, error };
 };

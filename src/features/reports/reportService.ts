@@ -1,10 +1,10 @@
 import { db, storage } from '../../config/firebase';
-import { collection, addDoc, updateDoc, query, where, getDocs } from 'firebase/firestore';
+import { doc, collection, addDoc, updateDoc, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Student, SchoolInfo } from '../../types';
+import { Student, School } from '../../types/school';
 
 export const reportService = {
-  async generate(students: Student[], schoolInfo: SchoolInfo, userId: string) {
+  async generate(students: Student[], schoolInfo: School, userId: string) {
     const reportsCollection = collection(db, 'reports');
     const results = [];
 

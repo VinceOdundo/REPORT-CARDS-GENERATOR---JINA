@@ -10,9 +10,12 @@ import {
   HStack,
   Text,
   useToast,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { PerformanceAnalytics } from "../PerformanceAnalytics";
 import { useSchool } from "../../school/SchoolProvider";
+import { AppError } from "../../../utils/errorHandling";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
@@ -75,15 +78,18 @@ export const PerformanceAnalyticsPanel: React.FC = () => {
     <Box p={6} bg="white" borderRadius="lg" shadow="sm">
       <HStack justify="space-between" mb={6}>
         <Heading size="md">Performance Analytics</Heading>
-        <Select
-          value={timeframe}
-          onChange={(e) => setTimeframe(e.target.value as "term" | "year")}
-          w="200px"
-          aria-label="Select time period"
-        >
-          <option value="term">This Term</option>
-          <option value="year">This Year</option>
-        </Select>
+        <FormControl>
+          <FormLabel>Time Period</FormLabel>
+          <Select
+            value={timeframe}
+            onChange={(e) => setTimeframe(e.target.value as "term" | "year")}
+            w="200px"
+            aria-label="Select time period"
+          >
+            <option value="term">This Term</option>
+            <option value="year">This Year</option>
+          </Select>
+        </FormControl>
       </HStack>
 
       {metrics && (

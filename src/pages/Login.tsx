@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -9,9 +9,12 @@ import {
   Text,
   useToast,
   Image,
+  FormErrorMessage,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import { useAuth } from "../features/auth/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { theme } from "../styles/themes/main";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -19,9 +22,20 @@ const Login: React.FC = () => {
   const [password, setPassword] = React.useState("");
   const { login } = useAuth();
   const toast = useToast();
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid";
+    if (!password) newErrors.password = "Password is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     try {
       await login(email, password);
       navigate("/dashboard");
@@ -45,44 +59,56 @@ const Login: React.FC = () => {
       justifyContent="center"
       bg="gray.50"
     >
-      <VStack
-        spacing={8}
-        w={{ base: "90%", md: "400px" }}
-        p={8}
-        bg="white"
-        borderRadius="lg"
-        boxShadow="lg"
-      >
+      <VStack __css={theme.components.Form.baseStyle.container}>
         <Image
           src="../../public/assets/images/favicon.png"
           alt="Logo"
           w="150px"
         />
-        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+        <Box
+          as="form"
+          onSubmit={handleSubmit}
+          __css={theme.components.Form.baseStyle.form}
+        >
           <VStack spacing={4}>
-            <FormControl>
+            <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
               <Input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors((prev) => ({ ...prev, email: undefined }));
+                }}
               />
+              {errors.email && (
+                <FormErrorMessage>{errors.email}</FormErrorMessage>
+              )}
             </FormControl>
-            <FormControl>
+            <FormControl isRequired isInvalid={!!errors.password}>
               <FormLabel>Password</FormLabel>
               <Input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors((prev) => ({ ...prev, password: undefined }));
+                }}
               />
+              {errors.password && (
+                <FormErrorMessage>{errors.password}</FormErrorMessage>
+              )}
             </FormControl>
             <Button type="submit" colorScheme="blue" w="100%">
               Login
             </Button>
           </VStack>
-        </form>
+        </Box>
         <Text fontSize="sm">
-          Don't have an account? <Button variant="link">Sign up</Button>
+          Don't have an account?{" "}
+          <ChakraLink as={RouterLink} to="/signup" color="blue.500">
+            Sign up
+          </ChakraLink>
         </Text>
       </VStack>
     </Box>

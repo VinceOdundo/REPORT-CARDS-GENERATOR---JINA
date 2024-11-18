@@ -5,6 +5,7 @@ import { AppRoutes } from "./routes";
 import { AuthProvider } from "./features/auth/AuthProvider";
 import { MainLayout } from "./components/layout/MainLayout";
 import { theme } from "./styles/themes/main";
+import { NavBar } from "./components/layout/NavBar";
 
 const App: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const App: React.FC = () => {
       <CSSReset />
       <Router>
         <AuthProvider>
+          <NavBar />
           <MainLayout>
             <AppRoutes />
           </MainLayout>

@@ -1,6 +1,6 @@
 import { db } from '../../config/firebase';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { School } from '../../types';
+import { School } from '../../types/school';
 
 export const schoolService = {
   async getSchool(userId: string): Promise<School> {

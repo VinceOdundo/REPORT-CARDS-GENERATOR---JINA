@@ -12,13 +12,17 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Tooltip,
+  Icon,
+  Text,
 } from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
 
 const Settings: React.FC = () => {
   return (
     <Box p={8}>
       <Heading mb={6}>Settings</Heading>
-      <Tabs>
+      <Tabs variant="enclosed-colored">
         <TabList>
           <Tab>School Profile</Tab>
           <Tab>Report Templates</Tab>
@@ -28,10 +32,19 @@ const Settings: React.FC = () => {
 
         <TabPanels>
           <TabPanel>
-            <VStack spacing={4} align="stretch">
-              <FormControl>
-                <FormLabel>School Name</FormLabel>
-                <Input />
+            <VStack spacing={6} align="stretch">
+              <Text fontSize="sm" color="gray.600" mb={4}>
+                Complete your school profile to unlock additional features and
+                personalize your reports.
+              </Text>
+              <FormControl isRequired>
+                <FormLabel>
+                  School Name
+                  <Tooltip label="This will appear on all your reports">
+                    <Icon as={InfoIcon} ml={1} />
+                  </Tooltip>
+                </FormLabel>
+                <Input placeholder="Enter school name" />
               </FormControl>
               <FormControl>
                 <FormLabel>Address</FormLabel>
@@ -41,7 +54,13 @@ const Settings: React.FC = () => {
                 <FormLabel>Phone</FormLabel>
                 <Input />
               </FormControl>
-              <Button colorScheme="blue">Save Changes</Button>
+              <Button
+                colorScheme="blue"
+                size="lg"
+                rightIcon={<Icon as={InfoIcon} />}
+              >
+                Save Profile
+              </Button>
             </VStack>
           </TabPanel>
           {/* Other tab panels */}

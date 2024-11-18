@@ -1,5 +1,5 @@
 import { db } from '../../config/firebase';
-import { doc, updateDoc, getDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, increment, arrayUnion } from 'firebase/firestore';
 
 export interface Progress {
   level: number;
@@ -16,6 +16,7 @@ export class ProgressTracker {
   }
 
   async updateProgress(userId: string, xpGained: number): Promise<Progress> {
+    const oldProgress = await this.getProgress(userId);
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
     const currentProgress: Progress = userData?.progress || { level: 1, xp: 0, xpToNextLevel: this.BASE_XP };
@@ -38,6 +39,11 @@ export class ProgressTracker {
       points: increment(xpGained)
     });
 
+    // Check if leveled up
+    if (newProgress.level > oldProgress.level) {
+      await this.notifyLevelUp(userId, newProgress.level);
+    }
+
     return newProgress;
   }
 
@@ -45,5 +51,17 @@ export class ProgressTracker {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const progress = userDoc.data()?.progress;
     return progress || { level: 1, xp: 0, xpToNextLevel: this.BASE_XP };
+  }
+
+  private async notifyLevelUp(userId: string, newLevel: number) {
+    const notification = {
+      type: 'LEVEL_UP',
+      message: `Congratulations! You've reached level ${newLevel}!`,
+      timestamp: new Date()
+    };
+    
+    await updateDoc(doc(db, 'users', userId), {
+      notifications: arrayUnion(notification)
+    });
   }
 }

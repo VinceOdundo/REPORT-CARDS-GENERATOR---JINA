@@ -24,8 +24,8 @@ export const authService = {
     await sendPasswordResetEmail(auth, email);
   },
 
-  async getUserData(uid: string): Promise<User> {
-    const userDoc = await getDoc(doc(db, 'users', uid));
+  async getUserData(id: string): Promise<User> {
+    const userDoc = await getDoc(doc(db, 'users', id));
     if (!userDoc.exists()) {
       throw new Error('User not found');
     }

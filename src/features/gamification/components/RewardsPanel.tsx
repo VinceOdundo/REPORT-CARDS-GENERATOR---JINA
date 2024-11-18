@@ -22,7 +22,7 @@ export const RewardsPanel: React.FC = () => {
   const handleClaimReward = async (rewardId: string) => {
     try {
       const rewardSystem = new RewardSystem();
-      const success = await rewardSystem.claimReward(user!.uid, rewardId);
+      const success = await rewardSystem.claimReward(user!.id, rewardId);
 
       if (success) {
         await trackEvent("reward_claimed", { rewardId });
