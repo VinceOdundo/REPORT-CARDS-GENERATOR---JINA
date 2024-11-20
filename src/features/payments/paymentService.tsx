@@ -2,6 +2,8 @@ import axios from "axios";
 import { PAYMENT_CONFIG } from "../../config/payments";
 import { db } from "../../config/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { APP_CONSTANTS } from "../../utils/constants";
+import { createLemonSqueezyCheckout } from "../../api/services/lemonSqueezyService";
 
 export class PaymentService {
   private readonly COLLECTION = "subscriptions";
@@ -27,17 +29,15 @@ export class PaymentService {
     }
   }
 
-  async initiateLemonSqueezyPayment(userId: string, planVariantId: string) {
+  async initiateLemonSqueezyPayment(userId: string, plan: string) {
     try {
-      const response = await axios.post("/api/lemon-squeezy/create-checkout", {
-        variantId: planVariantId,
-        userId,
-        custom_data: {
-          userId,
-        },
-      });
+      const variantId =
+        plan === "premium"
+          ? APP_CONSTANTS.LEMON_SQUEEZY_VARIANTS.PREMIUM
+          : APP_CONSTANTS.LEMON_SQUEEZY_VARIANTS.BASIC;
 
-      return response.data.checkoutUrl;
+      const checkoutUrl = await createLemonSqueezyCheckout(variantId, userId);
+      return checkoutUrl;
     } catch (error) {
       throw new Error("Failed to create Lemon Squeezy checkout");
     }

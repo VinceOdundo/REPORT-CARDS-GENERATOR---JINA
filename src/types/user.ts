@@ -1,4 +1,6 @@
-export interface User {
+import { User as FirebaseUser } from 'firebase/auth';
+
+export interface User extends Omit<FirebaseUser, 'providerData'> {
   id: string;
   email: string;
   displayName: string;
@@ -9,6 +11,11 @@ export interface User {
   lastLogin: Date;
   isActive: boolean;
   permissions: Permission[];
+  emailVerified: boolean;
+  metadata: {
+    creationTime?: string;
+    lastSignInTime?: string;
+  };
 }
 
 export interface Permission {

@@ -13,6 +13,8 @@ import {
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import { useAuth } from "../features/auth/useAuth";
+import { useAnalytics } from "../features/analytics/AnalyticsProvider";
+import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { theme } from "../styles/themes/main";
 
@@ -20,7 +22,8 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const { login } = useAuth();
+  const { login, signInWithGoogle } = useAuth();
+  const analytics = useAnalytics();
   const toast = useToast();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -38,13 +41,27 @@ const Login: React.FC = () => {
     if (!validate()) return;
     try {
       await login(email, password);
+      await analytics.trackEvent("user_login");
       navigate("/dashboard");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
       toast({
-        title: "Error",
-        description: errorMessage,
+        title: "Login Error",
+        description: error instanceof Error ? error.message : "Login failed",
+        status: "error",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      await analytics.trackEvent("google_login");
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Google Sign-in Error",
+        description: error instanceof Error ? error.message : "Sign-in failed",
         status: "error",
         duration: 5000,
       });
@@ -103,6 +120,14 @@ const Login: React.FC = () => {
             </FormControl>
             <Button type="submit" colorScheme="blue" w="100%">
               Login
+            </Button>
+            <Button
+              leftIcon={<FcGoogle />}
+              onClick={handleGoogleSignIn}
+              w="100%"
+              variant="outline"
+            >
+              Continue with Google
             </Button>
           </VStack>
         </Box>

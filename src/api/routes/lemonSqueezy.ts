@@ -1,6 +1,5 @@
-
 import express from 'express';
-import { verifyLemonSqueezyWebhook } from '../services/lemonSqueezyService';
+import { verifyLemonSqueezyWebhook, updateSubscriptionFromWebhook } from '../services/lemonSqueezyService';
 
 const router = express.Router();
 
@@ -17,18 +16,19 @@ router.post('/webhook', async (req, res) => {
     }
 
     const { event, data } = req.body;
-    switch (event) {
-      case 'order_created':
-        // Handle new order
-        break;
-      case 'subscription_created':
-        // Handle new subscription
-        break;
-      case 'subscription_updated':
-        // Handle subscription update
-        break;
-      default:
-        console.log(`Unhandled event: ${event}`);
+    const supportedEvents = [
+      'order_created',
+      'order_paid',
+      'subscription_created',
+      'subscription_updated',
+      'subscription_payment_failed',
+      'subscription_cancelled'
+    ];
+
+    if (supportedEvents.includes(event)) {
+      await updateSubscriptionFromWebhook(event, data);
+    } else {
+      console.log(`Unhandled event: ${event}`);
     }
 
     res.json({ received: true });

@@ -85,6 +85,7 @@ export const PerformanceAnalyticsPanel: React.FC = () => {
             onChange={(e) => setTimeframe(e.target.value as "term" | "year")}
             w="200px"
             aria-label="Select time period"
+            title="Select time period"
           >
             <option value="term">This Term</option>
             <option value="year">This Year</option>

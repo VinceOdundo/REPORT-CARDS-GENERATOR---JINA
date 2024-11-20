@@ -28,6 +28,10 @@ export const APP_CONSTANTS = {
     FREE: 0,
     BASIC: 999,
     PREMIUM: 2499
+  },
+  LEMON_SQUEEZY_VARIANTS: {
+    BASIC: 'variant_xxxx', // Replace with your actual variant IDs
+    PREMIUM: 'variant_yyyy'
   }
 };
 

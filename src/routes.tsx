@@ -8,6 +8,11 @@ const Login = React.lazy(() => import("./pages/Login"));
 const Reports = React.lazy(() => import("./pages/Reports"));
 const Settings = React.lazy(() => import("./pages/Settings"));
 const Billing = React.lazy(() => import("./pages/Billing"));
+const BillingSuccess = React.lazy(() =>
+  import("./pages/BillingSuccess").then((module) => ({
+    default: module.BillingSuccess,
+  }))
+);
 const Landing = React.lazy(() => import("./pages/Landing"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
 
@@ -41,6 +46,12 @@ export const AppRoutes: React.FC = () => {
         <Route
           path="/billing"
           element={isAuthenticated ? <Billing /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/billing/success"
+          element={
+            isAuthenticated ? <BillingSuccess /> : <Navigate to="/login" />
+          }
         />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

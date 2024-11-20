@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
+import { authService } from "../features/auth/authService";
 
 const SignUp: React.FC = () => {
   const [schoolName, setSchoolName] = useState("");
@@ -26,12 +27,20 @@ const SignUp: React.FC = () => {
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
+    try {
+      authService.validateSignupInput(email, password);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes("email")) {
+          newErrors.email = error.message;
+        }
+        if (error.message.includes("password")) {
+          newErrors.password = error.message;
+        }
+      }
+    }
     if (!schoolName) newErrors.schoolName = "School name is required";
-    if (!email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid";
-    if (!password) newErrors.password = "Password is required";
-    else if (password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

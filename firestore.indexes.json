@@ -1,0 +1,21 @@
+{
+    "indexes": [
+      {
+        "collectionGroup": "reports",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "schoolId", "order": "ASCENDING" },
+          { "fieldPath": "createdAt", "order": "DESCENDING" }
+        ]
+      },
+      {
+        "collectionGroup": "analytics",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "userId", "order": "ASCENDING" },
+          { "fieldPath": "timestamp", "order": "DESCENDING" }
+        ]
+      }
+    ],
+    "fieldOverrides": []
+  }
